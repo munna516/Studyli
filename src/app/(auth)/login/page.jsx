@@ -1,61 +1,92 @@
+"use client";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Login() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        {/* Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Login To Your Account
-          </h1>
-          <p className="text-gray-600 text-lg">Choose your role to continue</p>
-        </div>
-
-        {/* Description */}
-        <div className="text-center mb-8">
-          <p className="text-gray-500 leading-relaxed">
-            Select whether you're a teacher or student to access your
-            personalized dashboard and learning experience.
-          </p>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex flex-col gap-4">
-          <Link href="/login/teacher">
-            <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer">
-              Continue as Teacher
-            </button>
-          </Link>
-
-          <Link href="/login/student">
-            <button className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer">
-              Continue as Student
-            </button>
-          </Link>
-        </div>
-
-        {/* Additional info */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-400">
-            Don't have an account?{" "}
-            <a
-              href="/signup"
-              className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer hover:underline ml-3"
+    <div className="min-h-screen flex items-center justify-center  px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        <h2 className="text-2xl font-bold text-center text-blue-500 mb-6">
+          Login to your account
+        </h2>
+        <form className="space-y-6">
+          {/* Email Field */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-gray-700 font-medium mb-2"
             >
-              Register here
-            </a>
-            <span className="text-gray-400 ml-3">
-              <Link
-                href="/"
-                className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer hover:underline"
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              placeholder="Enter your email"
+            />
+          </div>
+
+          {/* Password Field */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition pr-12"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none"
+                onClick={() => setShowPassword((prev) => !prev)}
+                tabIndex={-1}
               >
-                Home
-              </Link>
-            </span>
-          </p>
-        </div>
+                {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+              </button>
+            </div>
+          </div>
+
+          {/* Login Button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+          >
+            Login
+          </button>
+        </form>
+        <p className="text-center text-gray-500 mt-4">
+          Don't have an account?{" "}
+          <Link
+            href="/register"
+            className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer hover:underline ml-3"
+          >
+            Register
+          </Link>
+          <span className="text-gray-400 ml-3">
+            <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer hover:underline">
+              Home
+            </Link>
+          </span>
+        </p>
       </div>
     </div>
   );
