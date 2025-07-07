@@ -1,8 +1,11 @@
+"use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React from "react";
 
 export default function Footer() {
-  return (
+  const pathName = usePathname();
+  return pathName.includes("login") || pathName.includes("signup") || pathName.includes("/login/teacher") || pathName.includes("/login/student") || pathName.includes("/signup/teacher") || pathName.includes("/signup/student") ? "" : (
     <div className=" bg-gray-200 w-full">
       <div className="max-w-[1440px] mx-auto px-4 py-10 ">
         <div className="flex items-center justify-between">
