@@ -3,6 +3,7 @@ import HeroImage from "./HeroImage";
 import { Button } from "../ui/button";
 import { Typewriter } from "react-simple-typewriter";
 import Link from "next/link";
+import Count from "../Count/Count";
 
 export default function Hero() {
   return (
@@ -43,9 +44,12 @@ export default function Hero() {
           secure authentication, role-based access, and a user-friendly
           interface to enhance the overall online learning experience.
         </p>
-        <Link href="/login" className="w-full">
+        <Link href="/login" className="w-full ">
           <Button variant="primary">Join Now</Button>
         </Link>
+        <div className="mt-8">
+          <Count />
+        </div>
       </div>
 
       {/* Right Side: Image */}

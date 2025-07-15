@@ -20,22 +20,49 @@ import toast from "react-hot-toast";
 export default function Navbar() {
   const { data: session } = useSession();
   const pathName = usePathname();
+  const isActive = (href) => pathName === href;
   const handleSignOut = () => {
     toast.success("Logged out successfully");
     signOut({
       callbackUrl: "/",
     });
   };
-  return pathName.includes("login") || pathName.includes("register") ? (
+  const navLinks = [
+    { name: "Home", href: "/" },
+    ...(session?.user
+      ? [
+          { name: "Dashboard", href: "/dashboard" },
+          { name: "My Courses", href: "/my-courses" },
+        ]
+      : []),
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
+  return pathName.includes("login") ||
+    pathName.includes("register") ||
+    pathName.includes("admin") ? (
     ""
   ) : (
     <div className="border-b border-gray-200 bg-white py-5 fixed top-0 left-0 z-50 w-full">
       <div className="max-w-[1440px] mx-auto px-4 flex items-center justify-between">
-        <div className="">
+        <div className="flex items-center gap-32">
           <div>
             <Link href="/" className="text-4xl font-bold text-blue-500">
               StudyLi
             </Link>
+          </div>
+          <div className="flex items-center gap-10">
+            {navLinks.map((link) => (
+              <Link href={link.href} key={link.name}>
+                <h1
+                  className={`text-blue-500 font-bold text-lg hover:text-blue-500 hover:bg-blue-100 rounded-md px-2 py-1 ${
+                    isActive(link.href) ? "bg-blue-100 text-blue-500" : ""
+                  }`}
+                >
+                  {link.name}
+                </h1>
+              </Link>
+            ))}
           </div>
         </div>
         {session?.user ? (

@@ -11,25 +11,40 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const { email, password } = credentials;
+        const { email, password, role } = credentials;
         // Check if email and password are provided
         if (!email || !password) {
           return null;
         }
         try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/auth/login`,
-            {
-              method: "POST",
-              body: JSON.stringify({ email, password }),
+          if (role === "Admin") {
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/auth/adminlogin`,
+              {
+                method: "POST",
+                body: JSON.stringify({ email, password }),
+              }
+            );
+            if (res.status === 404 || res.status === 401) {
+              return null;
             }
-          );
+            const data = await res.json();
+            return data;
+          } else {
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/auth/login`,
+              {
+                method: "POST",
+                body: JSON.stringify({ email, password }),
+              }
+            );
 
-          if (res.status === 404 || res.status === 401) {
-            return null;
+            if (res.status === 404 || res.status === 401) {
+              return null;
+            }
+            const data = await res.json();
+            return data;
           }
-          const data = await res.json();
-          return data;
         } catch (error) {
           return null;
         }

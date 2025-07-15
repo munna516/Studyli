@@ -5,7 +5,9 @@ import React from "react";
 
 export default function Footer() {
   const pathName = usePathname();
-  return pathName.includes("login") || pathName.includes("register") ? (
+  return pathName.includes("login") ||
+    pathName.includes("register") ||
+    pathName.includes("admin") ? (
     ""
   ) : (
     <div className="border-t border-gray-200 bg-white w-full">
