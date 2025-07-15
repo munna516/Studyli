@@ -7,7 +7,10 @@ export async function POST(req) {
   try {
     await connectDB();
     const { email, password } = await req.json();
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      email,
+      role: { $in: ["Student", "Teacher"] },
+    });
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }

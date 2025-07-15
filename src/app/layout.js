@@ -6,6 +6,8 @@ import { Toaster } from "react-hot-toast";
 import NextAuthProvider from "@/provider/NextAuthProvider";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import Main from "@/components/Main/Main";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,9 +34,7 @@ export default async function RootLayout({ children }) {
       >
         <NextAuthProvider session={session}>
           <Navbar />
-          <main className="flex-grow max-w-[1440px] mx-auto px-4 w-full bg-white">
-            {children}
-          </main>
+          <Main>{children}</Main>
           <Toaster />
           <Footer />
         </NextAuthProvider>

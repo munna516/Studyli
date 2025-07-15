@@ -27,15 +27,14 @@ export default function Login() {
       const response = await signIn("credentials", {
         email,
         password,
-        role: "",
+        role: "Admin",
         redirect: false,
       });
       if (response?.error) {
         toast.error("Invalid credentials");
       } else {
-        toast.success("Login successful");
-
-        router.push("/dashboard");
+        toast.success("Admin Login successful");
+        router.push("/admin/dashboard");
       }
     } catch (error) {
       toast.error("Internal server error");
@@ -47,9 +46,12 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center  px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold text-center text-blue-500 mb-6">
-          Login to your account
+        <h2 className="text-2xl font-bold text-center text-blue-500 mb-2">
+          Admin Login
         </h2>
+        <p className="text-center text-gray-400 mb-6">
+          This route is only for admin.Please use admin credentials to login.
+        </p>
         <form className="space-y-6">
           {/* Email Field */}
           <div>
@@ -114,14 +116,7 @@ export default function Login() {
             )}
           </button>
         </form>
-        <p className="text-center text-gray-500 mt-4">
-          Don't have an account?{" "}
-          <Link
-            href="/register"
-            className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer hover:underline ml-3"
-          >
-            Register
-          </Link>
+        <p className="text-right text-gray-500 mt-4">
           <span className="text-gray-400 ml-3">
             <Link
               href="/"

@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
 import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export default function Dashboard() {
   const { data: session } = useSession();
-  console.log("this is session", session);
+
+  
   return (
     <div className="mt-32">
       <h1>Dashboard</h1>

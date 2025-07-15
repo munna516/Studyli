@@ -52,7 +52,6 @@ export default function Register() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
 
     if (form.password !== form.confirmPassword) {
@@ -69,8 +68,7 @@ export default function Register() {
       return;
     }
 
-    console.log("This is the form data", form);
-
+    setIsLoading(true);
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: {
