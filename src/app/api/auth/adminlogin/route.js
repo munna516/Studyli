@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import connectDB from "@/lib/mongoose";
+
 
 export async function POST(req) {
+  await connectDB();
   const { email, password } = await req.json();
-  console.log("email", email);
-  console.log("password", password);
   const user = await User.findOne({ email, role: "Admin" });
   if (!user) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
