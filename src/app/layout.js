@@ -3,6 +3,9 @@ import "./globals.css";
 import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
 import { Toaster } from "react-hot-toast";
+import NextAuthProvider from "@/provider/NextAuthProvider";
+import { authOptions } from "./api/auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,18 +23,21 @@ export const metadata = {
     "Studyli is an online Learning Management System (LMS) for schools and universities.",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session = await getServerSession(authOptions);
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <Navbar />
-        <main className="flex-grow max-w-[1440px] mx-auto px-4 w-full bg-white">
-          {children}
-        </main>
-        <Toaster />
-        <Footer />
+        <NextAuthProvider session={session}>
+          <Navbar />
+          <main className="flex-grow max-w-[1440px] mx-auto px-4 w-full bg-white">
+            {children}
+          </main>
+          <Toaster />
+          <Footer />
+        </NextAuthProvider>
       </body>
     </html>
   );

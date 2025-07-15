@@ -2,11 +2,45 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import toast from "react-hot-toast";
+import { signIn } from "next-auth/react";
+import { TbFidgetSpinner } from "react-icons/tb";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Please fill all the fields");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const response = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (response?.error) {
+        toast.error("Invalid credentials");
+      } else {
+        toast.success("Login successful");
+
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      toast.error("Internal server error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center  px-4">
@@ -68,9 +102,14 @@ export default function Login() {
           {/* Login Button */}
           <button
             type="submit"
+            onClick={(e) => handleLogin(e)}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
           >
-            Login
+            {isLoading ? (
+              <TbFidgetSpinner className="animate-spin m-auto" />
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
         <p className="text-center text-gray-500 mt-4">
@@ -82,7 +121,10 @@ export default function Login() {
             Register
           </Link>
           <span className="text-gray-400 ml-3">
-            <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer hover:underline">
+            <Link
+              href="/"
+              className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer hover:underline"
+            >
               Home
             </Link>
           </span>
