@@ -4,18 +4,28 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { TbFidgetSpinner } from "react-icons/tb";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const departments = [
   "Computer Science & Engineering",
   "Electrical & Electronic Engineering",
   "Business Administration",
   "Mechanical Engineering",
-  "Texttile Engineering",
+  "Textile Engineering",
   "Civil Engineering",
+  "Architecture",
+  "Pharmacy",
+  "Law",
   "Math",
   "Physics",
   "Chemistry",
   "English",
+  "Biology",
+  "Economics",
+  "Accounting",
+  "Marketing",
+  "Management",
 ];
 
 export default function Register() {
@@ -34,11 +44,13 @@ export default function Register() {
     confirmPassword: "",
   });
 
+  const router = useRouter();
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
@@ -58,8 +70,33 @@ export default function Register() {
     }
 
     console.log("This is the form data", form);
-    setIsLoading(false);
-    // You can add further validation or submission logic here
+
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      toast.success(data.message);
+      setForm({
+        fullName: "",
+        email: "",
+        phone: "",
+        department: "",
+        resume: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setIsLoading(false);
+      router.push("/login");
+    } else {
+      const errorData = await response.json();
+      toast.error(errorData.message);
+    }
   };
 
   return (
