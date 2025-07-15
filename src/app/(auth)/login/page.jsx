@@ -14,7 +14,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  console.log("session", session);
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
