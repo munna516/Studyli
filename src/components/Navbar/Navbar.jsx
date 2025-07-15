@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const pathName = usePathname();
-  console.log(pathName);
   return pathName.includes("login") || pathName.includes("register") ? (
     ""
   ) : (
