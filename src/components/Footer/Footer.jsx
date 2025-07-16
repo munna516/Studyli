@@ -31,10 +31,10 @@ export default function Footer() {
               Home
             </Link>
             <Link
-              href="/"
+              href="/blogs"
               className="text-blue-500 hover:text-blue-700 hover:underline"
             >
-              About
+              Blogs
             </Link>
             <Link
               href="/"

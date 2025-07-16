@@ -56,7 +56,14 @@ export default function Navbar() {
           { name: "My Courses", href: "/my-courses" },
         ]
       : []),
-    { name: "About", href: "/about" },
+    {
+      name: "Blog",
+      href: "/blogs",
+    },
+    {
+      name: "Announcements",
+      href: "/announcement",
+    },
     { name: "Contact", href: "/contact" },
   ];
   return (
