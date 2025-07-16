@@ -6,22 +6,17 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import {
-  LayoutDashboard,
-  Menu,
-  User,
-  BookOpen,
-  Users,
-  Bell,
-  PlusCircle,
-} from "lucide-react";
+import { LayoutDashboard, Menu, Users } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
+import logo from "../../../../../public/assets/image/logo.jpg";
 
 const navMain = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
+  { label: "Teachers", icon: Users, href: "/admin/teachers" },
 ];
 
 export default function Sidebar({
@@ -39,34 +34,21 @@ export default function Sidebar({
     toast.success("Signed out successfully");
   };
   const SidebarContent = (
-    <div className="flex flex-col ">
+    <div className={`flex flex-col ${isSidebarOpen ? "px-4" : ""}`}>
       {/* Profile */}
       <div className="flex flex-col items-center pt-4">
-        {
-          isSidebarOpen && (
-            <div>
-              <h1 className="text-2xl font-bold text-center text-blue-500">
-                Admin Panel
-              </h1>
-            </div>
-          )
-        }
+        {isSidebarOpen && (
+          <div>
+            <Image src={logo} alt="StudyLi" width={120} height={120} />
+          </div>
+        )}
         <div
           className={`text-sm  mt-2 font-bold uppercase ${
             mobileSidebar ? "text-black " : "text-blue-600"
           }`}
         >
-          {session?.role}
+          Admin
         </div>
-        {isSidebarOpen && (
-          <div
-            className={`text-sm ${
-              mobileSidebar ? "text-black " : "text-blue-600 "
-            } font-semibold mt-2`}
-          >
-            {mobileSidebar ? "" : session?.user?.email}
-          </div>
-        )}
       </div>
       {/* Main Navigation */}
       <div className="px-6 mt-4">
@@ -82,7 +64,7 @@ export default function Sidebar({
             <Link
               key={item.label}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md transition ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-md hover:text-blue-500 transition ${
                 isActive(item.href)
                   ? "text-blue-500 bg-blue-100 "
                   : `${mobileSidebar ? "text-black " : "text-gray-600 "}`

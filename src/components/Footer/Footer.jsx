@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
+import Image from "next/image";
+import logo from "../../../public/assets/image/logo.jpg";
 
 export default function Footer() {
   const pathName = usePathname();
@@ -14,7 +16,7 @@ export default function Footer() {
       <div className="max-w-[1440px] mx-auto px-4 py-10 ">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-blue-500 mb-3">StudyLi</h1>
+            <Image src={logo} alt="StudyLi" width={150} height={100} />
             <p className="text-gray-500 text-lg w-1/2">
               Studyli is an online Learning Management System (LMS) for schools
               and universities.It is a platform for students to learn and
