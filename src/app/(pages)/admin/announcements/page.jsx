@@ -62,7 +62,10 @@ export default function Announcements() {
   };
 
   const handleSave = async () => {
-    if (!form.title || !form.description) return;
+    if (!form.title || !form.description) {
+      toast.error("Please fill all the fields");
+      return;
+    }
     if (editId) {
       try {
         const res = await fetch(`/api/announcement`, {
@@ -203,7 +206,7 @@ export default function Announcements() {
                       {announcement.title}
                     </td>
                     <td className="p-2 align-top max-w-md break-words">
-                      {announcement.description}
+                      {announcement.description.slice(0, 70)}...
                     </td>
                     <td className="p-2 align-top whitespace-nowrap">
                       {announcement.date.split("T")[0]}

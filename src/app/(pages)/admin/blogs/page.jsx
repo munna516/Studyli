@@ -64,7 +64,10 @@ export default function Blogs() {
   };
 
   const handleSave = async () => {
-    if (!form.title || !form.description) return;
+    if (!form.title || !form.description || !form.thumbnail) {
+      toast.error("Please fill all the fields");
+      return;
+    }
     if (editId) {
       try {
         const res = await fetch(`/api/blogs`, {
@@ -209,10 +212,10 @@ export default function Blogs() {
                       {blog.title}
                     </td>
                     <td className="p-2 align-top max-w-md break-words">
-                      {blog.description.slice(0, 70)}
+                      {blog.description.slice(0, 50)}...
                     </td>
                     <td className="p-2 align-top whitespace-nowrap">
-                      {blog.date.split("T")[0]}
+                      {blog.date.split("06:00:00")[0]}
                     </td>
                     <td className="p-2 align-top text-center">
                       <Button
