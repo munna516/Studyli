@@ -21,7 +21,7 @@ export async function POST(req) {
 
 export async function GET() {
   try {
-    const blogs = await Blog.find().sort({ date: -1 });
+    const blogs = await Blog.find()
     return NextResponse.json(blogs);
   } catch (error) {
     return NextResponse.json(
@@ -34,7 +34,6 @@ export async function GET() {
 export async function PUT(req, { params }) {
   try {
     const { id, title, description, thumbnail } = await req.json();
-    console.log(id, title, description, thumbnail);
     const blog = await Blog.findByIdAndUpdate(id, {
       title,
       description,
