@@ -59,6 +59,8 @@ export default function MyCourses() {
   });
   const [errors, setErrors] = useState({});
 
+  console.log(session);
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -125,10 +127,13 @@ export default function MyCourses() {
     }
 
     setIsSubmitting(true);
-
+    console.log(session?._id);
     try {
       const response = await fetch("/api/courses", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           ...formData,
           author: {
