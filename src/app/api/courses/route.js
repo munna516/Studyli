@@ -23,9 +23,6 @@ export async function POST(req) {
   try {
     await connectDB();
     const courseData = await req.json();
-
-    console.log("This is from courses api", courseData);
-
     const course = await Course.create(courseData);
     return NextResponse.json(
       { message: "Course created successfully" },
