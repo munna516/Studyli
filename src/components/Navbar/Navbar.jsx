@@ -50,6 +50,7 @@ export default function Navbar() {
   };
   const navLinks = [
     { name: "Home", href: "/" },
+    { name: "Courses", href: "/courses" },
     ...(session?.user
       ? [
           { name: "Dashboard", href: "/dashboard" },
