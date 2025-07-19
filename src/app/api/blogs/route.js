@@ -1,8 +1,10 @@
+import connectDB from "@/lib/mongoose";
 import Blog from "@/models/Blog";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
+    await connectDB();
     const { title, description, thumbnail } = await req.json();
 
     const date = new Date().toISOString().slice(0, 10);
@@ -21,7 +23,8 @@ export async function POST(req) {
 
 export async function GET() {
   try {
-    const blogs = await Blog.find()
+    await connectDB();
+    const blogs = await Blog.find();
     return NextResponse.json(blogs);
   } catch (error) {
     return NextResponse.json(
@@ -33,6 +36,7 @@ export async function GET() {
 
 export async function PUT(req, { params }) {
   try {
+    await connectDB();
     const { id, title, description, thumbnail } = await req.json();
     const blog = await Blog.findByIdAndUpdate(id, {
       title,
@@ -51,13 +55,19 @@ export async function PUT(req, { params }) {
   }
 }
 
-
 export async function DELETE(req) {
   try {
+    await connectDB();
     const { id } = await req.json();
     const blog = await Blog.findByIdAndDelete(id);
-    return NextResponse.json({ message: "Blog deleted successfully" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Blog deleted successfully" },
+      { status: 200 }
+    );
   } catch (error) {
-    return NextResponse.json({ message: "Blog deletion failed", error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Blog deletion failed", error },
+      { status: 500 }
+    );
   }
 }

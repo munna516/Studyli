@@ -57,7 +57,7 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user?.id;
+        token._id = user?._id;
         token.role = user?.role;
         token.name = user?.name;
         token.email = user?.email;
@@ -71,7 +71,7 @@ export const authOptions = {
     // Attach the custom data from the JWT token to the session
     async session({ session, token }) {
       if (token) {
-        session.id = token?.id;
+        session._id = token?._id;
         session.role = token?.role;
         session.name = token?.name;
         session.email = token?.email;
