@@ -424,7 +424,7 @@ export default function MyCourses() {
 
         {/* Content Area */}
         <div className=" rounded-lg shadow-sm p-6">
-          {courses.length > 0 ? (
+          {courses?.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {courses.map((course) => (
                 <Card
@@ -502,17 +502,17 @@ export default function MyCourses() {
               )}
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 {session?.role === "Teacher" &&
-                courses.length === 0 &&
+                courses?.length === 0 &&
                 isVerified
                   ? "No courses created yet"
-                  : session?.role === "Student" && courses.length === 0
+                  : session?.role === "Student" && courses?.length === 0
                   ? "No courses enrolled yet"
                   : ""}
               </h3>
               <p className="text-gray-600">
-                {session?.role === "Teacher" && courses.length === 0
+                {session?.role === "Teacher" && courses?.length === 0
                   ? "Create your first course to get started!"
-                  : session?.role === "Student" && courses.length === 0
+                  : session?.role === "Student" && courses?.length === 0
                   ? "Enroll in courses from the Courses page to see them here."
                   : ""}
               </p>
