@@ -17,9 +17,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { ChevronDown, User, BookOpen, Clock, Star } from "lucide-react";
 import toast from "react-hot-toast";
 import Loading from "@/components/Loading/Loading";
+import Link from "next/link";
 
 const categories = [
   "All",
@@ -43,121 +53,6 @@ const categories = [
   "Management",
 ];
 
-// Sample course data - in a real app, this would come from the API
-const sampleCourses = [
-  {
-    _id: "1",
-    title: "Introduction to Computer Science",
-    shortDescription:
-      "Learn the fundamentals of computer science and programming",
-    description:
-      "A comprehensive introduction to computer science concepts, algorithms, and programming fundamentals.",
-    category: "Computer Science & Engineering",
-    author: {
-      name: "Dr. Sarah Johnson",
-      id: { name: "Dr. Sarah Johnson" },
-    },
-    thumbnail:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    duration: "12 hours",
-    level: "Beginner",
-    price: 0,
-    enrolledStudents: [],
-  },
-  {
-    _id: "2",
-    title: "Advanced Mathematics for Engineering",
-    shortDescription:
-      "Master advanced mathematical concepts for engineering applications",
-    description:
-      "Deep dive into calculus, linear algebra, and differential equations for engineering students.",
-    category: "Math",
-    author: {
-      name: "Prof. Michael Chen",
-      id: { name: "Prof. Michael Chen" },
-    },
-    thumbnail:
-      "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    duration: "15 hours",
-    level: "Advanced",
-    price: 0,
-    enrolledStudents: [],
-  },
-  {
-    _id: "3",
-    title: "Business Strategy and Management",
-    shortDescription: "Develop strategic thinking and management skills",
-    description:
-      "Learn essential business strategy concepts and management techniques for modern organizations.",
-    category: "Management",
-    author: {
-      name: "Dr. Emily Rodriguez",
-      id: { name: "Dr. Emily Rodriguez" },
-    },
-    thumbnail:
-      "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    duration: "10 hours",
-    level: "Intermediate",
-    price: 0,
-    enrolledStudents: [],
-  },
-  {
-    _id: "4",
-    title: "Organic Chemistry Fundamentals",
-    shortDescription:
-      "Understand the basics of organic chemistry and molecular structures",
-    description:
-      "Comprehensive study of organic compounds, reactions, and molecular structures.",
-    category: "Chemistry",
-    author: {
-      name: "Prof. David Kim",
-      id: { name: "Prof. David Kim" },
-    },
-    thumbnail:
-      "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    duration: "14 hours",
-    level: "Intermediate",
-    price: 0,
-    enrolledStudents: [],
-  },
-  {
-    _id: "5",
-    title: "Electrical Circuit Design",
-    shortDescription: "Learn to design and analyze electrical circuits",
-    description:
-      "Practical course on electrical circuit design, analysis, and implementation.",
-    category: "Electrical & Electronic Engineering",
-    author: {
-      name: "Dr. Robert Wilson",
-      id: { name: "Dr. Robert Wilson" },
-    },
-    thumbnail:
-      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    duration: "16 hours",
-    level: "Advanced",
-    price: 0,
-    enrolledStudents: [],
-  },
-  {
-    _id: "6",
-    title: "English Literature and Composition",
-    shortDescription: "Explore classic literature and improve writing skills",
-    description:
-      "Study of classic literature and development of advanced writing and analytical skills.",
-    category: "English",
-    author: {
-      name: "Prof. Lisa Thompson",
-      id: { name: "Prof. Lisa Thompson" },
-    },
-    thumbnail:
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    duration: "11 hours",
-    level: "Beginner",
-    price: 0,
-    enrolledStudents: [],
-  },
-];
-
 export default function Courses() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -166,6 +61,12 @@ export default function Courses() {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+
+  // Dialog state
+  const [isEnrollmentDialogOpen, setIsEnrollmentDialogOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [enrollmentKey, setEnrollmentKey] = useState("");
+  const [isEnrolling, setIsEnrolling] = useState(false);
 
   // Fetch courses from API
   useEffect(() => {
@@ -212,7 +113,19 @@ export default function Courses() {
       return;
     }
 
-    // setIsLoading(true);
+    // Find the course and open dialog
+    const course = courses.find((c) => c._id === courseId);
+    setSelectedCourse(course);
+    setIsEnrollmentDialogOpen(true);
+  };
+
+  const handleEnrollmentSubmit = async () => {
+    if (!enrollmentKey.trim()) {
+      toast.error("Please enter an enrollment key");
+      return;
+    }
+
+    setIsEnrolling(true);
     // try {
     //   const response = await fetch("/api/courses/enroll", {
     //     method: "POST",
@@ -220,8 +133,9 @@ export default function Courses() {
     //       "Content-Type": "application/json",
     //     },
     //     body: JSON.stringify({
-    //       courseId,
+    //       courseId: selectedCourse._id,
     //       studentId: session.id,
+    //       enrollmentKey: enrollmentKey.trim(),
     //     }),
     //   });
 
@@ -232,7 +146,7 @@ export default function Courses() {
     //     // Update the course to show as enrolled
     //     setCourses((prevCourses) =>
     //       prevCourses.map((course) =>
-    //         course._id === courseId
+    //         course._id === selectedCourse._id
     //           ? {
     //               ...course,
     //               enrolledStudents: [
@@ -243,14 +157,24 @@ export default function Courses() {
     //           : course
     //       )
     //     );
+    //     // Close dialog and reset state
+    //     setIsEnrollmentDialogOpen(false);
+    //     setEnrollmentKey("");
+    //     setSelectedCourse(null);
     //   } else {
     //     toast.error(data.message || "Failed to enroll in course");
     //   }
     // } catch (error) {
     //   toast.error("An error occurred while enrolling");
     // } finally {
-    //   setIsLoading(false);
+    //   setIsEnrolling(false);
     // }
+  };
+
+  const handleDialogClose = () => {
+    setIsEnrollmentDialogOpen(false);
+    setEnrollmentKey("");
+    setSelectedCourse(null);
   };
 
   const isEnrolled = (courseId) => {
@@ -371,20 +295,27 @@ export default function Courses() {
                     </div>
 
                     {/* Enroll Button */}
-                    <Button
-                      onClick={() => handleEnroll(course._id)}
-                      disabled={isLoading || isEnrolled(course._id)}
-                      className="w-full"
-                      variant={isEnrolled(course._id) ? "secondary" : "primary"}
-                    >
-                      {isLoading ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      ) : isEnrolled(course._id) ? (
-                        "Enrolled"
-                      ) : (
-                        "Enroll Now"
-                      )}
-                    </Button>
+                    <div className="flex items-center gap-6 justify-end">
+                      <Button
+                        onClick={() => handleEnroll(course._id)}
+                        disabled={isLoading || isEnrolled(course._id)}
+                        variant={
+                          isEnrolled(course._id) ? "secondary" : "primary"
+                        }
+                      >
+                        {isLoading ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        ) : isEnrolled(course._id) ? (
+                          "Enrolled"
+                        ) : (
+                          "Enroll Now"
+                        )}
+                      </Button>
+
+                      <Link href={`/courses/${course._id}`}>
+                        <Button variant="primary">View Course</Button>
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -392,6 +323,72 @@ export default function Courses() {
           )}
         </div>
       </div>
+
+      {/* Enrollment Dialog */}
+      <Dialog open={isEnrollmentDialogOpen} onOpenChange={handleDialogClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-blue-500">
+              Enroll in Course
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
+              {selectedCourse && (
+                <>
+                  <span className="font-medium">{selectedCourse.title}</span>
+                  <br />
+                  Please enter the enrollment key provided by your instructor to
+                  enroll in this course.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="enrollmentKey"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Enrollment Key
+              </label>
+              <Input
+                id="enrollmentKey"
+                type="text"
+                placeholder="Enter enrollment key"
+                value={enrollmentKey}
+                onChange={(e) => setEnrollmentKey(e.target.value)}
+                className="w-full"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="primary"
+              onClick={handleDialogClose}
+              disabled={isEnrolling}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleEnrollmentSubmit}
+              disabled={isEnrolling || !enrollmentKey.trim()}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              {isEnrolling ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Enrolling...
+                </div>
+              ) : (
+                "Enroll Now"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

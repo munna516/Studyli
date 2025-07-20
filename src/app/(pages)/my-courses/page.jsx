@@ -19,9 +19,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Plus, BookOpen } from "lucide-react";
+import { ChevronDown, Plus, BookOpen, User, Star } from "lucide-react";
 import toast from "react-hot-toast";
 import Loading from "@/components/Loading/Loading";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import Link from "next/link";
 
 const categories = [
   "Computer Science & Engineering",
@@ -50,6 +59,7 @@ export default function MyCourses() {
   const { data: session, status } = useSession();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -59,7 +69,27 @@ export default function MyCourses() {
   });
   const [errors, setErrors] = useState({});
 
-  console.log(session);
+  const {
+    data: courses,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["my_courses"],
+    queryFn: () =>
+      fetch(`/api/my-courses?id=${session?._id}&role=${session?.role}`).then(
+        (res) => {
+          if (res.status === 401) {
+            setIsVerified(false);
+          } else {
+            setIsVerified(true);
+            return res.json();
+          }
+        }
+      ),
+    enabled: !!session?._id && !!session?.role,
+  });
+
+  if (isLoading) return <Loading />;
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -149,6 +179,7 @@ export default function MyCourses() {
         toast.success(data.message);
         setIsDialogOpen(false);
         resetForm();
+        refetch();
       } else {
         toast.error("Failed to create course. Please try again.");
       }
@@ -192,7 +223,7 @@ export default function MyCourses() {
             </div>
 
             {/* Create Course Button - Only for Teachers */}
-            {session?.role === "Teacher" && (
+            {session?.role === "Teacher" && isVerified && (
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="primary" className="flex items-center gap-2">
@@ -392,28 +423,110 @@ export default function MyCourses() {
         </div>
 
         {/* Content Area */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="text-center py-12">
-            <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {session?.role === "Teacher"
-                ? "No courses created yet"
-                : "No courses enrolled yet"}
-            </h3>
-            <p className="text-gray-600">
-              {session?.role === "Teacher"
-                ? "Create your first course to get started!"
-                : "Enroll in courses from the Courses page to see them here."}
-            </p>
-            {session?.role !== "Teacher" && (
-              <Button
-                className="mt-4"
-                onClick={() => (window.location.href = "/courses")}
-              >
-                Browse Courses
-              </Button>
-            )}
-          </div>
+        <div className=" rounded-lg shadow-sm p-6">
+          {courses.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((course) => (
+                <Card
+                  key={course._id}
+                  className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                >
+                  {/* Course Thumbnail */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={course.thumbnail}
+                      alt={course.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                        {course.level}
+                      </span>
+                    </div>
+                  </div>
+
+                  <CardHeader className="pb-3">
+                    {/* Course Title */}
+                    <CardTitle className="text-xl font-bold text-blue-500 line-clamp-2">
+                      {course.title}
+                    </CardTitle>
+
+                    {/* Short Description */}
+                    <CardDescription className="text-gray-600 line-clamp-2">
+                      {course.description}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="pt-0">
+                    {/* Author Information */}
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <div className="flex items-center gap-1">
+                        <User className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm text-gray-600 font-medium">
+                          {course.author.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 text-yellow-500" />
+                        <span>4.8</span>
+                      </div>
+                    </div>
+
+                    {/* Course Details */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4 text-sm text-gray-500"></div>
+                    </div>
+
+                    {/* Enroll Button */}
+                    <div className="flex items-center gap-6 justify-end">
+                      <Link href={`/courses/${course._id}`}>
+                        <Button variant="primary">View Course</Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              {session?.role === "Student" ? (
+                <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              ) : session?.role === "Teacher" && isVerified ? (
+                <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              ) : (
+                <div>
+                  <h1 className="text-lg font-bold text-blue-400">
+                    Please Wait for Admin Vefication
+                  </h1>
+                </div>
+              )}
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {session?.role === "Teacher" &&
+                courses.length === 0 &&
+                isVerified
+                  ? "No courses created yet"
+                  : session?.role === "Student" && courses.length === 0
+                  ? "No courses enrolled yet"
+                  : ""}
+              </h3>
+              <p className="text-gray-600">
+                {session?.role === "Teacher" && courses.length === 0
+                  ? "Create your first course to get started!"
+                  : session?.role === "Student" && courses.length === 0
+                  ? "Enroll in courses from the Courses page to see them here."
+                  : ""}
+              </p>
+              {session?.role !== "Teacher" && (
+                <Button
+                  variant="primary"
+                  className="mt-4"
+                  onClick={() => (window.location.href = "/courses")}
+                >
+                  Browse Courses
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
