@@ -124,51 +124,39 @@ export default function Courses() {
       toast.error("Please enter an enrollment key");
       return;
     }
-
     setIsEnrolling(true);
-    // try {
-    //   const response = await fetch("/api/courses/enroll", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({
-    //       courseId: selectedCourse._id,
-    //       studentId: session.id,
-    //       enrollmentKey: enrollmentKey.trim(),
-    //     }),
-    //   });
+    try {
+      const response = await fetch("/api/courses/enroll", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseId: selectedCourse._id,
+          studentId: session?._id,
+          email: session?.email,
+          enrollmentKey: enrollmentKey,
+        }),
+      });
 
-    //   const data = await response.json();
+      console.log(response);
 
-    //   if (response.ok) {
-    //     toast.success("Successfully enrolled in course!");
-    //     // Update the course to show as enrolled
-    //     setCourses((prevCourses) =>
-    //       prevCourses.map((course) =>
-    //         course._id === selectedCourse._id
-    //           ? {
-    //               ...course,
-    //               enrolledStudents: [
-    //                 ...course.enrolledStudents,
-    //                 { studentId: session.id, enrolledAt: new Date() },
-    //               ],
-    //             }
-    //           : course
-    //       )
-    //     );
-    //     // Close dialog and reset state
-    //     setIsEnrollmentDialogOpen(false);
-    //     setEnrollmentKey("");
-    //     setSelectedCourse(null);
-    //   } else {
-    //     toast.error(data.message || "Failed to enroll in course");
-    //   }
-    // } catch (error) {
-    //   toast.error("An error occurred while enrolling");
-    // } finally {
-    //   setIsEnrolling(false);
-    // }
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(data?.message || "Successfully enrolled in course");
+        setIsEnrollmentDialogOpen(false);
+        setEnrollmentKey("");
+        setSelectedCourse(null);
+        router.push("/my-courses");
+      } else {
+        toast.error(data?.message || "Failed to enroll in course");
+      }
+    } catch (error) {
+      toast.error("An error occurred while enrolling");
+    } finally {
+      setIsEnrolling(false);
+    }
   };
 
   const handleDialogClose = () => {
@@ -190,7 +178,7 @@ export default function Courses() {
   }
 
   return (
-    <div className="mt-32 mb-16 min-h-screen">
+    <div className="mt-28 mb-16">
       <div className="container mx-auto px-4">
         {/* Header Section */}
         <div className="mb-8">
@@ -296,6 +284,9 @@ export default function Courses() {
 
                     {/* Enroll Button */}
                     <div className="flex items-center gap-6 justify-end">
+                      <Link href={`/courses/${course._id}`}>
+                        <Button variant="primary">View Course</Button>
+                      </Link>
                       <Button
                         onClick={() => handleEnroll(course._id)}
                         disabled={isLoading || isEnrolled(course._id)}
@@ -311,10 +302,6 @@ export default function Courses() {
                           "Enroll Now"
                         )}
                       </Button>
-
-                      <Link href={`/courses/${course._id}`}>
-                        <Button variant="primary">View Course</Button>
-                      </Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -334,7 +321,9 @@ export default function Courses() {
             <DialogDescription className="text-gray-600">
               {selectedCourse && (
                 <>
-                  <span className="font-medium">{selectedCourse.title}</span>
+                  <span className="font-medium  text-gray-600">
+                    {selectedCourse.title}
+                  </span>
                   <br />
                   Please enter the enrollment key provided by your instructor to
                   enroll in this course.
