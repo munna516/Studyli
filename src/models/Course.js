@@ -30,7 +30,7 @@ const courseSchema = new Schema({
       "Economics",
       "Accounting",
       "Marketing",
-      "Management"
+      "Management",
     ],
   },
   author: {
@@ -57,20 +57,26 @@ const courseSchema = new Schema({
     enum: ["Beginner", "Intermediate", "Advanced"],
     default: "Beginner",
   },
-  enrolledStudents: [{
-    studentId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+  enrolledStudents: [
+    {
+      studentId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+      email: {
+        type: String,
+        required: true,
+      },
+      enrolledAt: {
+        type: Date,
+        default: Date.now,
+      },
     },
-    email:{
-      type: String,
-      required: true,
-    },
-    enrolledAt: {
-      type: Date,
-      default: Date.now,
-    },
-  }],
+  ],
+  enrollmentKey: {
+    type: String,
+    required: true,
+  },
   isActive: {
     type: Boolean,
     default: true,
@@ -86,9 +92,9 @@ const courseSchema = new Schema({
 });
 
 // Update the updatedAt field before saving
-courseSchema.pre("save", function(next) {
+courseSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
-export default mongoose.models.Course || mongoose.model("Course", courseSchema); 
+export default mongoose.models.Course || mongoose.model("Course", courseSchema);
