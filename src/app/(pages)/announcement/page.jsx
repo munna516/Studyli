@@ -16,8 +16,10 @@ export default function Announcements() {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="mt-32 mb-12">
-      <h1 className="text-3xl font-bold mb-8 text-center text-blue-500">Announcements</h1>
+    <div className="mt-28 mb-12">
+      <h1 className="text-3xl font-bold mb-8 text-center text-blue-500">
+        Announcements
+      </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {announcements && announcements.length > 0 ? (
           announcements.map((announcement) => (
@@ -35,7 +37,8 @@ export default function Announcements() {
                   {announcement.description}
                 </p>
                 <div className="text-sm text-gray-500 text-right mt-4">
-                  Post Date : {announcement.date ? announcement.date.split("T")[0] : ""}
+                  Post Date :{" "}
+                  {announcement.date ? announcement.date.split("T")[0] : ""}
                 </div>
               </CardContent>
             </Card>
