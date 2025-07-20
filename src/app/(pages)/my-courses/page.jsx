@@ -206,7 +206,7 @@ export default function MyCourses() {
   }
 
   return (
-    <div className="min-h-screen  mt-32 pb-12">
+    <div className="mt-28 mb-16">
       <div className="">
         {/* Header Section */}
         <div className="mb-8">

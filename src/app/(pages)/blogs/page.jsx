@@ -18,7 +18,7 @@ export default function Blogs() {
 
 
   return (
-    <div className="mt-32 mb-12">
+    <div className="mt-28 mb-16">
       <h1 className="text-3xl font-bold mb-8 text-center text-blue-500">
         Blogs
       </h1>
