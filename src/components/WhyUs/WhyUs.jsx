@@ -33,7 +33,7 @@ export default function WhyUs() {
   ];
 
   return (
-    <section className="py-16  ">
+    <section className="mt-16">
       {/* Section Header */}
       <div className="text-center mb-16">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">

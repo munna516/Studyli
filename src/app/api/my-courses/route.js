@@ -13,6 +13,7 @@ export async function GET(req) {
     if (role == "Student") {
       const courses = await Course.find({
         "enrolledStudents.studentId": id,
+        isActive: true,
       });
       return NextResponse.json(courses);
     } else if (role == "Teacher") {
@@ -26,6 +27,7 @@ export async function GET(req) {
       }
       const courses = await Course.find({
         "author.id": id,
+        isActive: true,
       });
       return NextResponse.json(courses);
     }
