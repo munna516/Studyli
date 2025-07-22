@@ -29,7 +29,7 @@ export async function POST(req) {
         { status: 400 }
       );
     }
-    console.log(isEnrolled);
+
     course.enrolledStudents.push({ studentId, email });
     await course.save();
 

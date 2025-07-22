@@ -1,3 +1,4 @@
+import Blogs from "@/components/Blogs/Blogs";
 import FaqSection from "@/components/FaqSection/FaqSection";
 import Features from "@/components/Features/Features";
 import Hero from "@/components/Hero/Hero";
@@ -10,6 +11,7 @@ export default function Home() {
       <Hero />
       <Features />
       <WhyUs />
+      <Blogs />
       <FaqSection />
       <NewsLetter />
     </div>
