@@ -58,10 +58,6 @@ export default function Navbar() {
         ]
       : []),
     {
-      name: "Blog",
-      href: "/blogs",
-    },
-    {
       name: "Announcements",
       href: "/announcement",
     },

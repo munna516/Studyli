@@ -16,13 +16,16 @@ export default function Blogs() {
 
   if (isLoading) return <Loading />;
 
-
   return (
-    <div className="mt-28 mb-16">
-      <h1 className="text-3xl font-bold mb-8 text-center text-blue-500">
-        Blogs
+    <div className="my-20">
+      <h1 className="text-3xl font-bold mb-3 text-center ">
+        Our Recent <span className="text-blue-700">Blogs</span>
       </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <p className="text-gray-500 text-center mb-10">
+        Explore our latest blogs and stay updated with the latest news and
+        insights.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {blogs && blogs.length > 0 ? (
           blogs.map((blog) => (
             <Card
