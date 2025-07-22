@@ -105,7 +105,6 @@ export default function Blogs() {
   };
 
   const handleDelete = async (id) => {
-    console.log(id);
     Swal.fire({
       title: "Are you sure?",
       text: "",

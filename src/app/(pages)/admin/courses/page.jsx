@@ -70,9 +70,9 @@ export default function CoursePage() {
       } else {
         toast.error(data?.message);
       }
-      console.log(data);
+      
     } catch (error) {
-      console.log(error);
+      toast.error(error?.message);
     }
     setOpenDialog(false);
   };

@@ -30,6 +30,7 @@ import { ChevronDown, User, BookOpen, Clock, Star } from "lucide-react";
 import toast from "react-hot-toast";
 import Loading from "@/components/Loading/Loading";
 import Link from "next/link";
+import { MdCategory } from "react-icons/md";
 
 const categories = [
   "All",
@@ -139,8 +140,6 @@ export default function Courses() {
         }),
       });
 
-      console.log(response);
-
       const data = await response.json();
 
       if (response.ok) {
@@ -234,7 +233,7 @@ export default function Courses() {
               {filteredCourses.map((course) => (
                 <Card
                   key={course._id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  className="overflow-hidden hover:scale-105  duration-300"
                 >
                   {/* Course Thumbnail */}
                   <div className="relative h-48 overflow-hidden">
@@ -263,11 +262,19 @@ export default function Courses() {
                   </CardHeader>
 
                   <CardContent className="pt-0">
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <h1 className="flex  items-center gap-2 text-sm  font-medium">
+                        <span className="text-blue-500 text-lg">
+                          <MdCategory />
+                        </span>{" "}
+                        {course.category}
+                      </h1>
+                    </div>
                     {/* Author Information */}
                     <div className="flex items-center justify-between gap-2 mb-4">
                       <div className="flex items-center gap-1">
-                        <User className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-600 font-medium">
+                        <User className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm  font-medium">
                           {course.author.name}
                         </span>
                       </div>
