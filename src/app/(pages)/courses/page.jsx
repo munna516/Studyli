@@ -178,7 +178,7 @@ export default function Courses() {
 
   return (
     <div className="mt-28 mb-16">
-      <div className="container mx-auto px-4">
+      <div className=" px-4">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -217,7 +217,7 @@ export default function Courses() {
         </div>
 
         {/* Courses Grid Container with Fixed Height */}
-        <div className="min-h-[600px]">
+        <div className="">
           {filteredCourses.length === 0 ? (
             <div className="text-center py-12">
               <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
