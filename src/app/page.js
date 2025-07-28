@@ -1,5 +1,6 @@
 import Blogs from "@/components/Blogs/Blogs";
 import FaqSection from "@/components/FaqSection/FaqSection";
+import FeaturedCourse from "@/components/FeaturedCourse/FeaturedCourse";
 import Features from "@/components/Features/Features";
 import Hero from "@/components/Hero/Hero";
 import NewsLetter from "@/components/NewsLetter/NewsLetter";
@@ -11,6 +12,7 @@ export default function Home() {
       <Hero />
       <Features />
       <WhyUs />
+      <FeaturedCourse />
       <Blogs />
       <FaqSection />
       <NewsLetter />
