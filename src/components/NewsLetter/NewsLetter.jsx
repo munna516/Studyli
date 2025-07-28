@@ -21,7 +21,7 @@ export default function NewsLetter() {
   };
 
   return (
-    <div className="  rounded-lg  mt-16 mb-16">
+    <div className="rounded-lg  mb-16">
       <h2 className="text-3xl font-bold mb-2 text-center">
         Subscribe to our <span className="text-blue-500">Newsletter</span>
       </h2>
