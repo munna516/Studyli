@@ -8,7 +8,7 @@ export default function Blogs() {
   const { data: blogs, isLoading } = useQuery({
     queryKey: ["blogs"],
     queryFn: async () => {
-      const res = await fetch("/api/blogs");
+      const res = await fetch("/api/admin/blogs");
       const data = await res.json();
       return data;
     },
