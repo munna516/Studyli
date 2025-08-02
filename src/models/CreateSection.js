@@ -51,6 +51,26 @@ const createSectionSchema = new Schema({
       },
     },
   ],
+  assignmentSubmitting: [
+    {
+      studentId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+      assignmentId: {
+        type: String,
+        required: true,
+      },
+      pdfUrl: {
+        type: String,
+        required: true,
+      },
+      submittedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 
 export default mongoose.models.CreateSection ||
