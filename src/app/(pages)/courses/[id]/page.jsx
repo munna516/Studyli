@@ -6,20 +6,50 @@ import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { MdCategory } from "react-icons/md";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FaFilePdf, FaVideo, FaLink, FaPlus, FaTrash } from "react-icons/fa";
+import {
+  FaFilePdf,
+  FaVideo,
+  FaLink,
+  FaPlus,
+  FaTrash,
+  FaCheck,
+  FaTimes,
+} from "react-icons/fa";
 import Swal from "sweetalert2";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function CourseDetails() {
   const { data: session } = useSession();
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [councilRequestLoading, setCouncilRequestLoading] = useState(false);
+  const [councilRequestOpen, setCouncilRequestOpen] = useState(false);
+  const [councilRequestData, setCouncilRequestData] = useState({
+    subject: "",
+    message: "",
+  });
+  const [approvalData, setApprovalData] = useState({
+    meetDate: "",
+    meetLink: "",
+  });
+  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const [approvalLoading, setApprovalLoading] = useState(false);
+  const fileInputRef = useRef(null);
   const [newSection, setNewSection] = useState({
     type: "assignment",
     title: "",
@@ -51,8 +81,49 @@ export default function CourseDetails() {
     enabled: !!params.id,
   });
 
-  if (isCourseLoading || isSectionLoading) return <Loading />;
+  const { data: isEnrolled = true, isLoading: isEnrolledLoading } = useQuery({
+    queryKey: ["is_enrolled"],
+    queryFn: async () =>
+      fetch(
+        `/api/courses/is-enrolled?id=${params.id}&studentId=${session?._id}`
+      ).then((res) => res.json()),
+    enabled: !!session?._id && session?.role === "Student",
+  });
 
+  const {
+    data: councilRequest,
+    isLoading: isCouncilRequestLoading,
+    refetch: refetchCouncilRequest,
+  } = useQuery({
+    queryKey: ["council_request", params.id, session?._id],
+    queryFn: async () =>
+      fetch(
+        `/api/council-request?studentId=${session?._id}&courseId=${params.id}`
+      ).then((res) => res.json()),
+    enabled: !!session?._id && session?.role === "Student" && !!params.id,
+  });
+
+  const {
+    data: allCouncilRequests,
+    isLoading: isAllCouncilRequestsLoading,
+    refetch: refetchAllCouncilRequests,
+  } = useQuery({
+    queryKey: ["all_council_requests", params.id],
+    queryFn: async () =>
+      fetch(
+        `/api/council-request?teacherId=${session?._id}&courseId=${params.id}`
+      ).then((res) => res.json()),
+    enabled: !!session?._id && session?.role === "Teacher" && !!params.id,
+  });
+
+  if (
+    isCourseLoading ||
+    isSectionLoading ||
+    isEnrolledLoading ||
+    isCouncilRequestLoading ||
+    isAllCouncilRequestsLoading
+  )
+    return <Loading />;
   const handleEnroll = async (e) => {
     e.preventDefault();
     const enrollmentKey = e.target.key.value;
@@ -91,6 +162,114 @@ export default function CourseDetails() {
     }
   };
 
+  const handleCouncilRequest = async (e) => {
+    e.preventDefault();
+    if (
+      !councilRequestData.subject.trim() ||
+      !councilRequestData.message.trim()
+    ) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    setCouncilRequestLoading(true);
+    try {
+      const response = await fetch("/api/council-request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          studentId: session?._id,
+          courseId: params.id,
+          subject: councilRequestData.subject,
+          message: councilRequestData.message,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(
+          data?.message || "Council request submitted successfully"
+        );
+        setCouncilRequestOpen(false);
+        setCouncilRequestData({ subject: "", message: "" });
+        refetchCouncilRequest();
+      } else {
+        toast.error(data?.message || "Failed to submit council request");
+      }
+    } catch (error) {
+      toast.error("An error occurred while submitting request");
+    } finally {
+      setCouncilRequestLoading(false);
+    }
+  };
+
+  const handleApproval = async (e) => {
+    e.preventDefault();
+    if (!approvalData.meetDate || !approvalData.meetLink.trim()) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    setApprovalLoading(true);
+    try {
+      const response = await fetch("/api/council-request", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          requestId: selectedRequestId,
+          action: "approve",
+          meetDate: approvalData.meetDate,
+          meetLink: approvalData.meetLink,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(data?.message || "Council request approved successfully");
+        setApprovalDialogOpen(false);
+        setApprovalData({ meetDate: "", meetLink: "" });
+        setSelectedRequestId(null);
+        refetchAllCouncilRequests();
+      } else {
+        toast.error(data?.message || "Failed to approve council request");
+      }
+    } catch (error) {
+      toast.error("An error occurred while approving request");
+    } finally {
+      setApprovalLoading(false);
+    }
+  };
+
+  const handleRejection = async (requestId) => {
+    try {
+      const response = await fetch("/api/council-request", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          requestId,
+          action: "reject",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(data?.message || "Council request rejected successfully");
+        refetchAllCouncilRequests();
+      } else {
+        toast.error(data?.message || "Failed to reject council request");
+      }
+    } catch (error) {
+      toast.error("An error occurred while rejecting request");
+    }
+  };
+
   const handleAddSection = async (e) => {
     e.preventDefault();
     if (!newSection.title.trim() || !newSection.description.trim()) {
@@ -126,6 +305,16 @@ export default function CourseDetails() {
         link: "",
       });
     }
+  };
+
+  const handleSubmitAssignment = async (assignmentId) => {
+    const file = fileInputRef.current?.files[0];
+    if (!file) {
+      toast.error("Please select a PDF file before submitting.");
+      return;
+    }
+    toast.success("Assignment Submitted Successfully");
+    fileInputRef.current.value = "";
   };
 
   const handleDeleteSection = async (type, id) => {
@@ -269,12 +458,57 @@ export default function CourseDetails() {
 
   const renderSections = () => (
     <div className="space-y-6">
+      {/* Council Request Status for Students */}
+      {session?.role === "Student" &&
+        isEnrolled &&
+        councilRequest?.request?.status === "approved" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <FaLink className="text-green-500" />
+                Council Meeting Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+                  <h3 className="font-semibold text-lg text-green-800">
+                    {councilRequest.request.subject}
+                  </h3>
+                  <p className="text-green-700 mt-2">
+                    {councilRequest.request.message}
+                  </p>
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm">
+                      <span className="font-semibold">Meeting Date:</span>{" "}
+                      {new Date(
+                        councilRequest.request.meetDate
+                      ).toLocaleString()}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-semibold">Meeting Link:</span>{" "}
+                      <a
+                        href={councilRequest.request.meetLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        Join Meeting
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
       {/* Assignments Section */}
-      {sections?.assignments?.length > 0 && (
+      {sections?.assignments?.length > 0 && isEnrolled && session && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FaFilePdf className="text-red-500" />
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <FaFilePdf className="text-red-500 " />
               Assignments
             </CardTitle>
           </CardHeader>
@@ -315,12 +549,17 @@ export default function CourseDetails() {
                     <div className="mt-4">
                       <Input
                         type="file"
+                        name="assignment"
                         accept=".pdf"
                         className="mb-2"
                         placeholder="Upload PDF Assignment"
+                        ref={fileInputRef}
                       />
-                      <Button className="bg-green-500 hover:bg-green-600">
-                        Submit Assignment
+                      <Button
+                        onClick={() => handleSubmitAssignment(assignment._id)}
+                        variant="primary"
+                      >
+                        {loading ? "Submitting..." : "Submit Assignment"}
                       </Button>
                     </div>
                   )}
@@ -332,10 +571,10 @@ export default function CourseDetails() {
       )}
 
       {/* Meeting Links Section */}
-      {sections?.meetings?.length > 0 && (
+      {sections?.meetings?.length > 0 && isEnrolled && session && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-2xl">
               <FaLink className="text-blue-500" />
               Meeting Links
             </CardTitle>
@@ -382,10 +621,10 @@ export default function CourseDetails() {
       )}
 
       {/* Tutorial Videos Section */}
-      {sections?.tutorials?.length > 0 && (
+      {sections?.tutorials?.length > 0 && isEnrolled && session && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-2xl">
               <FaVideo className="text-purple-500" />
               Tutorial Videos
             </CardTitle>
@@ -433,6 +672,122 @@ export default function CourseDetails() {
         </Card>
       )}
     </div>
+  );
+
+  const renderCouncilRequestsTable = () => (
+    <Card className="mt-10">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-2xl ">
+          <FaLink className="text-orange-500" />
+          Council Requests
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {allCouncilRequests?.requests?.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    SL
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Student
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Subject
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Message
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Status
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {allCouncilRequests.requests.map((request, index) => (
+                  <tr key={request._id} className="hover:bg-gray-50">
+                    <td className="border border-gray-300 px-4 py-2">
+                      {index + 1}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {request.studentId?.name || "Unknown"}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {request.subject}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 max-w-xs truncate">
+                      {request.message}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          request.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : request.status === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {request.status}
+                      </span>
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {request.status === "pending" && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-green-600 hover:text-green-700"
+                            onClick={() => {
+                              setSelectedRequestId(request._id);
+                              setApprovalDialogOpen(true);
+                            }}
+                          >
+                            <FaCheck />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700"
+                            onClick={() => handleRejection(request._id)}
+                          >
+                            <FaTimes />
+                          </Button>
+                        </div>
+                      )}
+                      {request.status === "approved" && (
+                        <div className="text-sm text-gray-500">
+                          <p>
+                            Date: {new Date(request.meetDate).toLocaleString()}
+                          </p>
+                          <a
+                            href={request.meetLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:underline"
+                          >
+                            Meeting Link
+                          </a>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">
+            No council requests found
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 
   return (
@@ -489,11 +844,91 @@ export default function CourseDetails() {
             </div>
           </div>
           {/* Enrolled Count */}
-          <div className="flex items-center gap-2 mt-2 ">
-            <span>Total Enrolled:</span>
-            <span className="font-bold text-lg text-blue-500">
-              {course?.enrolledStudents.length}
+          <div className="flex items-center justify-between gap-2 mt-2 ">
+            <span>
+              Total Enrolled:{" "}
+              <span className="font-bold text-lg text-blue-500">
+                {course?.enrolledStudents.length}
+              </span>
             </span>
+
+            {session?.role === "Student" && isEnrolled && (
+              <div>
+                {councilRequest?.request?.status === "pending" ? (
+                  <Button disabled variant="outline">
+                    Request Pending
+                  </Button>
+                ) : (
+                  <Dialog
+                    open={councilRequestOpen}
+                    onOpenChange={setCouncilRequestOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="primary">Council Request</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Request for Council</DialogTitle>
+                        <DialogDescription>
+                          Submit your request for a council meeting. Please
+                          provide a subject and detailed message.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form
+                        onSubmit={handleCouncilRequest}
+                        className="space-y-4"
+                      >
+                        <div>
+                          <Label htmlFor="subject" className="mb-2">
+                            Subject
+                          </Label>
+                          <Input
+                            id="subject"
+                            value={councilRequestData.subject}
+                            onChange={(e) =>
+                              setCouncilRequestData((prev) => ({
+                                ...prev,
+                                subject: e.target.value,
+                              }))
+                            }
+                            placeholder="Enter subject"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="message" className="mb-2">
+                            Message
+                          </Label>
+                          <Textarea
+                            id="message"
+                            value={councilRequestData.message}
+                            onChange={(e) =>
+                              setCouncilRequestData((prev) => ({
+                                ...prev,
+                                message: e.target.value,
+                              }))
+                            }
+                            placeholder="Enter your message"
+                            required
+                          />
+                        </div>
+                        <DialogFooter>
+                          <Button
+                            type="submit"
+                            disabled={councilRequestLoading}
+                            variant="primary"
+                          >
+                            {councilRequestLoading
+                              ? "Submitting..."
+                              : "Submit Request"}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -527,7 +962,66 @@ export default function CourseDetails() {
       <div className="mt-20">
         {editMode && session?.role === "Teacher" && renderSectionForm()}
         {renderSections()}
+        {session?.role === "Teacher" && renderCouncilRequestsTable()}
       </div>
+
+      {/* Approval Dialog */}
+      <Dialog open={approvalDialogOpen} onOpenChange={setApprovalDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Approve Council Request</DialogTitle>
+            <DialogDescription>
+              Set the meeting date and link for the council request.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleApproval} className="space-y-4">
+            <div>
+              <Label htmlFor="meetDate" className="mb-2">
+                Meeting Date & Time
+              </Label>
+              <Input
+                id="meetDate"
+                type="datetime-local"
+                value={approvalData.meetDate}
+                onChange={(e) =>
+                  setApprovalData((prev) => ({
+                    ...prev,
+                    meetDate: e.target.value,
+                  }))
+                }
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="meetLink" className="mb-2">
+                Meeting Link
+              </Label>
+              <Input
+                id="meetLink"
+                type="url"
+                value={approvalData.meetLink}
+                onChange={(e) =>
+                  setApprovalData((prev) => ({
+                    ...prev,
+                    meetLink: e.target.value,
+                  }))
+                }
+                placeholder="Enter meeting link"
+                required
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="submit"
+                disabled={approvalLoading}
+                variant="primary"
+              >
+                {approvalLoading ? "Approving..." : "Approve Request"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
