@@ -109,10 +109,27 @@ export default function CourseDetails() {
     refetch: refetchAllCouncilRequests,
   } = useQuery({
     queryKey: ["all_council_requests", params.id],
-    queryFn: async () =>
-      fetch(
-        `/api/council-request?teacherId=${session?._id}&courseId=${params.id}`
-      ).then((res) => res.json()),
+    queryFn: async () => {
+      console.log("Frontend Debug - Making request with:", {
+        teacherId: session?._id,
+        courseId: params.id,
+        role: session?.role,
+      });
+      try {
+        const response = await fetch(
+          `/api/council-request?teacherId=${session?._id}&courseId=${params.id}`
+        );
+        const data = await response.json();
+        console.log("Frontend Debug - Response:", data);
+        return data;
+      } catch (error) {
+        console.error(
+          "Frontend Debug - Error fetching council requests:",
+          error
+        );
+        return { requests: [] };
+      }
+    },
     enabled: !!session?._id && session?.role === "Teacher" && !!params.id,
   });
 
@@ -674,121 +691,129 @@ export default function CourseDetails() {
     </div>
   );
 
-  const renderCouncilRequestsTable = () => (
-    <Card className="mt-10">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-2xl ">
-          <FaLink className="text-orange-500" />
-          Council Requests
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {allCouncilRequests?.requests?.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-4 py-2 text-left">
-                    SL
-                  </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">
-                    Student
-                  </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">
-                    Subject
-                  </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">
-                    Message
-                  </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">
-                    Status
-                  </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {allCouncilRequests.requests.map((request, index) => (
-                  <tr key={request._id} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 px-4 py-2">
-                      {index + 1}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {request.studentId?.name || "Unknown"}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {request.subject}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 max-w-xs truncate">
-                      {request.message}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          request.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : request.status === "approved"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {request.status}
-                      </span>
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {request.status === "pending" && (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-600 hover:text-green-700"
-                            onClick={() => {
-                              setSelectedRequestId(request._id);
-                              setApprovalDialogOpen(true);
-                            }}
-                          >
-                            <FaCheck />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700"
-                            onClick={() => handleRejection(request._id)}
-                          >
-                            <FaTimes />
-                          </Button>
-                        </div>
-                      )}
-                      {request.status === "approved" && (
-                        <div className="text-sm text-gray-500">
-                          <p>
-                            Date: {new Date(request.meetDate).toLocaleString()}
-                          </p>
-                          <a
-                            href={request.meetLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-500 hover:underline"
-                          >
-                            Meeting Link
-                          </a>
-                        </div>
-                      )}
-                    </td>
+  const renderCouncilRequestsTable = () => {
+    console.log(
+      "Frontend Debug - Rendering table with data:",
+      allCouncilRequests
+    );
+
+    return (
+      <Card className="mt-10">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl ">
+            <FaLink className="text-orange-500" />
+            Council Requests
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {allCouncilRequests?.requests?.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      SL
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Student
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Subject
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Message
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Status
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Action
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="text-gray-500 text-center py-4">
-            No council requests found
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  );
+                </thead>
+                <tbody>
+                  {allCouncilRequests.requests.map((request, index) => (
+                    <tr key={request._id} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-2">
+                        {index + 1}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {request.studentId?.name || "Unknown"}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {request.subject}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2 max-w-xs truncate">
+                        {request.message}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            request.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : request.status === "approved"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {request.status}
+                        </span>
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {request.status === "pending" && (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 hover:text-green-700"
+                              onClick={() => {
+                                setSelectedRequestId(request._id);
+                                setApprovalDialogOpen(true);
+                              }}
+                            >
+                              <FaCheck />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700"
+                              onClick={() => handleRejection(request._id)}
+                            >
+                              <FaTimes />
+                            </Button>
+                          </div>
+                        )}
+                        {request.status === "approved" && (
+                          <div className="text-sm text-gray-500">
+                            <p>
+                              Date:{" "}
+                              {new Date(request.meetDate).toLocaleString()}
+                            </p>
+                            <a
+                              href={request.meetLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:underline"
+                            >
+                              Meeting Link
+                            </a>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-4">
+              No council requests found
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="mt-28 mb-20">
@@ -962,7 +987,9 @@ export default function CourseDetails() {
       <div className="mt-20">
         {editMode && session?.role === "Teacher" && renderSectionForm()}
         {renderSections()}
-        {session?.role === "Teacher" && renderCouncilRequestsTable()}
+        {session?.role === "Teacher" &&
+          !isAllCouncilRequestsLoading &&
+          renderCouncilRequestsTable()}
       </div>
 
       {/* Approval Dialog */}
