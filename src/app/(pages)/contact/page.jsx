@@ -46,7 +46,7 @@ export default function Contact() {
       </h1>
       {/* Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <Card className="flex flex-col items-center py-8 bg-blue-50 shadow-md">
+        <Card className="flex flex-col items-center py-8 bg-blue-50 shadow-md cursor-pointer hover:bg-blue-100">
           <CardHeader className="flex flex-col items-center pb-2">
             <Mail className="w-10 h-10 text-blue-600 mb-2" />
             <CardTitle className="text-lg text-blue-700">Email</CardTitle>
@@ -55,7 +55,7 @@ export default function Contact() {
             studyli@gmail.com
           </CardContent>
         </Card>
-        <Card className="flex flex-col items-center py-8 bg-blue-50 shadow-md">
+        <Card className="flex flex-col items-center py-8 bg-blue-50 shadow-md cursor-pointer hover:bg-blue-100">
           <CardHeader className="flex flex-col items-center pb-2">
             <Phone className="w-10 h-10 text-blue-600 mb-2" />
             <CardTitle className="text-lg text-blue-700">Phone</CardTitle>
@@ -64,7 +64,7 @@ export default function Contact() {
             01717171717
           </CardContent>
         </Card>
-        <Card className="flex flex-col items-center py-8 bg-blue-50 shadow-md">
+        <Card className="flex flex-col items-center py-8 bg-blue-50 shadow-md cursor-pointer hover:bg-blue-100">
           <CardHeader className="flex flex-col items-center pb-2">
             <MapPin className="w-10 h-10 text-blue-600 mb-2" />
             <CardTitle className="text-lg text-blue-700">Address</CardTitle>

@@ -34,7 +34,7 @@ export default function Announcements() {
   } = useQuery({
     queryKey: ["announcements"],
     queryFn: async () => {
-      const res = await fetch("/api/announcement");
+      const res = await fetch("/api/admin/announcement");
       const data = await res.json();
       return data;
     },
@@ -68,7 +68,7 @@ export default function Announcements() {
     }
     if (editId) {
       try {
-        const res = await fetch(`/api/announcement`, {
+        const res = await fetch(`/api/admin/announcement`, {
           method: "PUT",
           body: JSON.stringify({ id: editId, ...form }),
         });
@@ -84,7 +84,7 @@ export default function Announcements() {
       }
     } else {
       try {
-        const res = await fetch(`/api/announcement`, {
+        const res = await fetch(`/api/admin/announcement`, {
           method: "POST",
           body: JSON.stringify(form),
         });
@@ -113,7 +113,7 @@ export default function Announcements() {
       }).then(async (result) => {
         if (result.isConfirmed) {
           try {
-            const res = await fetch(`/api/announcement`, {
+            const res = await fetch(`/api/admin/announcement`, {
               method: "DELETE",
               body: JSON.stringify({ id }),
             });

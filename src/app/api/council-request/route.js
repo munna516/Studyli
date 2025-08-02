@@ -58,23 +58,13 @@ export async function GET(request) {
     const courseId = searchParams.get("courseId");
     const teacherId = searchParams.get("teacherId");
 
-    console.log(
-      "API Debug - studentId:",
-      studentId,
-      "courseId:",
-      courseId,
-      "teacherId:",
-      teacherId
-    );
-
     if (teacherId) {
       // Get all council requests for a teacher's course
       const allRequests = await CouncilRequest.find({
         courseId,
       }).populate("studentId", "name email");
 
-      console.log("API Debug - Found requests:", allRequests.length);
-      console.log("API Debug - Requests data:", allRequests);
+    
 
       return NextResponse.json({ requests: allRequests || [] });
     } else if (studentId && courseId) {
@@ -84,11 +74,11 @@ export async function GET(request) {
         courseId,
       }).sort({ createdAt: -1 });
 
-      console.log("API Debug - Student request:", existingRequest);
+      
 
       return NextResponse.json({ request: existingRequest });
     } else {
-      console.log("API Debug - Invalid parameters");
+      
       return NextResponse.json(
         { message: "Invalid parameters" },
         { status: 400 }

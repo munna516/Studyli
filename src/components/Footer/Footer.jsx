@@ -31,13 +31,13 @@ export default function Footer() {
               Home
             </Link>
             <Link
-              href="/blogs"
+              href="/courses"
               className="text-blue-500 hover:text-blue-700 hover:underline"
             >
-              Blogs
+              Courses
             </Link>
             <Link
-              href="/"
+              href="/contact"
               className="text-blue-500 hover:text-blue-700 hover:underline"
             >
               Contact
