@@ -186,13 +186,7 @@ export default function Navbar() {
                     </p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href={`/profile`} className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4 text-blue-500" />
-                    <span className="text-blue-500 font-bold">Profile</span>
-                  </Link>
-                </DropdownMenuItem>
+                <DropdownMenuSeparator />      
                 <DropdownMenuItem
                   className="text-red-600 dark:text-red-400 cursor-pointer"
                   onClick={() => handleSignOut()}

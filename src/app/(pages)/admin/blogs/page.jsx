@@ -35,7 +35,7 @@ export default function Blogs() {
   } = useQuery({
     queryKey: ["blogs"],
     queryFn: async () => {
-      const res = await fetch("/api/blogs");
+      const res = await fetch("/api/admin/blogs");
       const data = await res.json();
       return data;
     },
@@ -70,7 +70,7 @@ export default function Blogs() {
     }
     if (editId) {
       try {
-        const res = await fetch(`/api/blogs`, {
+        const res = await fetch(`/api/admin/blogs`, {
           method: "PUT",
           body: JSON.stringify({ id: editId, ...form }),
         });
@@ -86,7 +86,7 @@ export default function Blogs() {
       }
     } else {
       try {
-        const res = await fetch("/api/blogs", {
+        const res = await fetch("/api/admin/blogs", {
           method: "POST",
           body: JSON.stringify(form),
         });
@@ -114,7 +114,7 @@ export default function Blogs() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await fetch(`/api/blogs`, {
+          const res = await fetch(`/api/admin/blogs`, {
             method: "DELETE",
             body: JSON.stringify({ id }),
           });

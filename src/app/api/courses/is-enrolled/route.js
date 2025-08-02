@@ -6,7 +6,6 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const courseId = searchParams.get("id");
     const studentId = searchParams.get("studentId");
-    console.log(courseId,studentId)
     const course = await Course.findById(courseId);
     if (!course) {
       return NextResponse.json(

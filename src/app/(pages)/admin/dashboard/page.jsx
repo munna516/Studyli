@@ -20,56 +20,62 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const stats = [
-  {
-    title: "Total Student",
-    icon: <FaUserGraduate size={32} />, // blue
-    count: 1200,
-    gradient: "from-blue-400 to-blue-600",
-  },
-  {
-    title: "Total Teacher",
-    icon: <FaChalkboardTeacher size={32} />, // purple
-    count: 80,
-    gradient: "from-purple-400 to-purple-600",
-  },
-  {
-    title: "Total Course",
-    icon: <FaBook size={32} />, // green
-    count: 35,
-    gradient: "from-green-400 to-green-600",
-  },
-  {
-    title: "Active Enrollment",
-    icon: <FaClipboardList size={32} />, // orange
-    count: 900,
-    gradient: "from-orange-400 to-orange-600",
-  },
-  {
-    title: "Submitted Assignment",
-    icon: <FaFileAlt size={32} />, // pink
-    count: 450,
-    gradient: "from-pink-400 to-pink-600",
-  },
-  {
-    title: "Pending Counseling Request",
-    icon: <FaHeadset size={32} />, // teal
-    count: 12,
-    gradient: "from-teal-400 to-teal-600",
-  },
-];
-
-const barData = [
-  { name: "Math", enrollments: 300 },
-  { name: "Physics", enrollments: 200 },
-  { name: "Chemistry", enrollments: 180 },
-  { name: "Biology", enrollments: 150 },
-  { name: "English", enrollments: 120 },
-  { name: "History", enrollments: 100 },
-];
-
 export default function AdminDashboard() {
-  
+  const { data: adminDashboard, isLoading } = useQuery({
+    queryKey: ["admin-dashboard"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/dashboard");
+      const data = await response.json();
+      return data;
+    },
+  });
+
+  if (isLoading) return <Loading />;
+
+  const barData = adminDashboard?.courseEnrollCount.map((item) => ({
+    name: item.name,
+    enrollments: item.count,
+  }));
+
+  const stats = [
+    {
+      title: "Total Student",
+      icon: <FaUserGraduate size={32} />, // blue
+      count: adminDashboard?.totalStudents,
+      gradient: "from-blue-400 to-blue-600",
+    },
+    {
+      title: "Total Teacher",
+      icon: <FaChalkboardTeacher size={32} />, // purple
+      count: adminDashboard?.totalTeachers,
+      gradient: "from-purple-400 to-purple-600",
+    },
+    {
+      title: "Total Course",
+      icon: <FaBook size={32} />, // green
+      count: adminDashboard?.totalCourses,
+      gradient: "from-green-400 to-green-600",
+    },
+    {
+      title: "Active Enrollment",
+      icon: <FaClipboardList size={32} />, // orange
+      count: adminDashboard?.totalEnrollments,
+      gradient: "from-orange-400 to-orange-600",
+    },
+    {
+      title: "Submitted Assignment",
+      icon: <FaFileAlt size={32} />, // pink
+      count: 2,
+      gradient: "from-pink-400 to-pink-600",
+    },
+    {
+      title: "Pending Counseling Request",
+      icon: <FaHeadset size={32} />, // teal
+      count: adminDashboard?.pendingCouncilRequests,
+      gradient: "from-teal-400 to-teal-600",
+    },
+  ];
+
   return (
     <div className="mb-16">
       {/* Stat Cards */}
