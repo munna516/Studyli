@@ -55,6 +55,9 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     const response = await CreateSection.find({ courseId: id });
+    if (response.length === 0) {
+      return NextResponse.json({ message: "No sections found" }, { status: 404 });
+    }
     return NextResponse.json(response[0]);
   } catch (error) {
     console.error("Error fetching sections:", error);
