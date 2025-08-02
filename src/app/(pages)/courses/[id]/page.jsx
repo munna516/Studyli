@@ -110,23 +110,13 @@ export default function CourseDetails() {
   } = useQuery({
     queryKey: ["all_council_requests", params.id],
     queryFn: async () => {
-      console.log("Frontend Debug - Making request with:", {
-        teacherId: session?._id,
-        courseId: params.id,
-        role: session?.role,
-      });
       try {
         const response = await fetch(
           `/api/council-request?teacherId=${session?._id}&courseId=${params.id}`
         );
         const data = await response.json();
-        console.log("Frontend Debug - Response:", data);
         return data;
       } catch (error) {
-        console.error(
-          "Frontend Debug - Error fetching council requests:",
-          error
-        );
         return { requests: [] };
       }
     },
@@ -860,16 +850,26 @@ export default function CourseDetails() {
           </div>
           {/* Teacher Info */}
           <div>
-            <div className="font-semibold mb-1">Teacher Info -</div>
-            <div className="flex items-center gap-3">
+            <div className="font-semibold  mb-1">Teacher Info -</div>
+            <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="font-medium">{course?.author.name}</div>
                 <div className="text-sm ">{course?.author.email}</div>
               </div>
+              {session && session?.role === "Teacher" && (
+                <div>
+                  <p className="">
+                    Enrollment Key:{" "}
+                    <span className="font-bold text-blue-500">
+                      {course?.enrollmentKey}
+                    </span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           {/* Enrolled Count */}
-          <div className="flex items-center justify-between gap-2 mt-2 ">
+          <div className="flex items-center justify-between gap-2 mt-1 ">
             <span>
               Total Enrolled:{" "}
               <span className="font-bold text-lg text-blue-500">

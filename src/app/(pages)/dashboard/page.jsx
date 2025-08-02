@@ -9,32 +9,48 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
 
 // Placeholder stats and events
 export default function DashboardPage() {
   const { data: session } = useSession();
   let stats;
+
+  const { data: dashboard, isLoading } = useQuery({
+    queryKey: ["courses"],
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/dashboard?id=${session?._id}&role=${session?.role}`
+      );
+      const data = await response.json();
+      return data;
+    },
+    enabled: !!session?._id,
+  });
+
+  if(isLoading) return <Loading/>
   if (session?.role === "Teacher") {
     stats = [
       {
         icon: <FaBookOpen className="text-blue-500 text-3xl" />,
         label: "Course Created",
-        count: 4,
+        count: dashboard?.totalCourses,
       },
       {
         icon: <FaCheckCircle className="text-green-500 text-3xl" />,
         label: "Active Course",
-        count: 3,
+        count: dashboard?.activeCourses,
       },
       {
         icon: <FaTasks className="text-purple-500 text-3xl" />,
         label: "Total Enrolled",
-        count: 120,
+        count: dashboard?.totalEnrolledStudents,
       },
       {
         icon: <FaClock className="text-orange-500 text-3xl" />,
-        label: "Activities Completed",
-        count: 25,
+        label: "Activities Created",
+        count: 2,
       },
     ];
   } else {
@@ -42,22 +58,22 @@ export default function DashboardPage() {
       {
         icon: <FaBookOpen className="text-blue-500 text-3xl" />,
         label: "Enrolled Courses",
-        count: 5,
+        count: dashboard?.totalEnrolled,
       },
       {
         icon: <FaCheckCircle className="text-green-500 text-3xl" />,
         label: "Course Completed",
-        count: 2,
+        count: 0,
       },
       {
         icon: <FaTasks className="text-purple-500 text-3xl" />,
         label: "Activities Completed",
-        count: 12,
+        count: 3,
       },
       {
         icon: <FaClock className="text-orange-500 text-3xl" />,
         label: "Activities Due",
-        count: 3,
+        count: 0,
       },
     ];
   }
