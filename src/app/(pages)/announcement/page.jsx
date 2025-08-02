@@ -7,7 +7,7 @@ export default function Announcements() {
   const { data: announcements, isLoading } = useQuery({
     queryKey: ["announcements"],
     queryFn: async () => {
-      const res = await fetch("/api/announcement");
+      const res = await fetch("/api/admin/announcement");
       const data = await res.json();
       return data;
     },
