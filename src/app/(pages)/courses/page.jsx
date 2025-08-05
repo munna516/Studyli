@@ -137,6 +137,7 @@ export default function Courses() {
           studentId: session?._id,
           email: session?.email,
           enrollmentKey: enrollmentKey,
+          name: session?.name,
         }),
       });
 
@@ -294,21 +295,23 @@ export default function Courses() {
                       <Link href={`/courses/${course._id}`}>
                         <Button variant="primary">View Course</Button>
                       </Link>
-                      <Button
-                        onClick={() => handleEnroll(course._id)}
-                        disabled={isLoading || isEnrolled(course._id)}
-                        variant={
-                          isEnrolled(course._id) ? "secondary" : "primary"
-                        }
-                      >
-                        {isLoading ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        ) : isEnrolled(course._id) ? (
-                          "Enrolled"
-                        ) : (
-                          "Enroll Now"
-                        )}
-                      </Button>
+                      {session?.role === "Student" && (
+                        <Button
+                          onClick={() => handleEnroll(course._id)}
+                          disabled={isLoading || isEnrolled(course._id)}
+                          variant={
+                            isEnrolled(course._id) ? "secondary" : "primary"
+                          }
+                        >
+                          {isLoading ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          ) : isEnrolled(course._id) ? (
+                            "Enrolled"
+                          ) : (
+                            "Enroll Now"
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

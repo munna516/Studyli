@@ -1,10 +1,6 @@
 # 🏥 StudyLi — Learning Management System
 
-**Health Point** is a modern online learning management system (LMS) designed to enhance the digital education experience for students, teachers and administrators. The platform offers intuitive tools for course creation, student enrollment, assignment submissions and real-time communication. With role-based dashboards tailored for admins, students and instructors, StudyLi ensures a streamlined, user-friendly interface for every user. It also supports multimedia learning materials, integrates cloud storage for file uploads, and provides a scalable architecture for institutions of all sizes.
-
-
-
-
+**StudyLi** is a modern online learning management system (LMS) designed to enhance the digital education experience for students, teachers and administrators. The platform offers intuitive tools for course creation, student enrollment, assignment submissions and real-time communication. With role-based dashboards tailored for admins, students and instructors, StudyLi ensures a streamlined, user-friendly interface for every user. It also supports multimedia learning materials, integrates cloud storage for file uploads, and provides a scalable architecture for institutions of all sizes.
 
 ## ✨ Features
 

@@ -150,6 +150,7 @@ export default function CourseDetails() {
           studentId: session?._id,
           email: session?.email,
           enrollmentKey: enrollmentKey,
+          name: session?.name,
         }),
       });
 
@@ -511,7 +512,7 @@ export default function CourseDetails() {
         )}
 
       {/* Assignments Section */}
-      {sections?.assignments?.length > 0 && isEnrolled && session && (
+      {sections?.assignments?.length > 0 && isEnrolled && session && (session?.role=="Student" || course?.author?.email === session?.email) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -578,7 +579,7 @@ export default function CourseDetails() {
       )}
 
       {/* Meeting Links Section */}
-      {sections?.meetings?.length > 0 && isEnrolled && session && (
+      {sections?.meetings?.length > 0 && isEnrolled && session && (session?.role=="Student" || course?.author?.email === session?.email) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -628,7 +629,7 @@ export default function CourseDetails() {
       )}
 
       {/* Tutorial Videos Section */}
-      {sections?.tutorials?.length > 0 && isEnrolled && session && (
+      {sections?.tutorials?.length > 0 && isEnrolled && session && (session?.role=="Student" || course?.author?.email === session?.email)&& (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -682,11 +683,7 @@ export default function CourseDetails() {
   );
 
   const renderCouncilRequestsTable = () => {
-    console.log(
-      "Frontend Debug - Rendering table with data:",
-      allCouncilRequests
-    );
-
+    
     return (
       <Card className="mt-10">
         <CardHeader>
@@ -823,7 +820,7 @@ export default function CourseDetails() {
           {/* Top Row: Title & Edit Toggle */}
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">{course?.title}</h1>
-            {session?.role === "Teacher" && (
+            {session?.role === "Teacher" && course?.author?.email === session?.email && (
               <button
                 className={`ml-4 px-3 py-1 rounded-full border ${
                   editMode
@@ -856,16 +853,18 @@ export default function CourseDetails() {
                 <div className="font-medium">{course?.author.name}</div>
                 <div className="text-sm ">{course?.author.email}</div>
               </div>
-              {session && session?.role === "Teacher" && (
-                <div>
-                  <p className="">
-                    Enrollment Key:{" "}
-                    <span className="font-bold text-blue-500">
-                      {course?.enrollmentKey}
-                    </span>
-                  </p>
-                </div>
-              )}
+              {session &&
+                session?.role === "Teacher" &&
+                course?.author?.email === session?.email && (
+                  <div>
+                    <p className="">
+                      Enrollment Key:{" "}
+                      <span className="font-bold text-blue-500">
+                        {course?.enrollmentKey}
+                      </span>
+                    </p>
+                  </div>
+                )}
             </div>
           </div>
           {/* Enrolled Count */}
@@ -988,7 +987,7 @@ export default function CourseDetails() {
         {editMode && session?.role === "Teacher" && renderSectionForm()}
         {renderSections()}
         {session?.role === "Teacher" &&
-          !isAllCouncilRequestsLoading &&
+          !isAllCouncilRequestsLoading && course?.author?.email === session?.email &&
           renderCouncilRequestsTable()}
       </div>
 
